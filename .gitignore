@@ -1,0 +1,9 @@
+### node ###
+logs
+*.log
+node_modules/
+.npm
+
+
+### dist ###
+public/

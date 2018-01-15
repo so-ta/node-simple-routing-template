@@ -1,0 +1,21 @@
+{
+  "name": "node",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start": "npm-run-all --parallel server webpack browsersync",
+    "server": "nodemon app/server.js",
+    "webpack": "webpack --watch",
+    "browsersync": "browser-sync start --proxy localhost:1337 --files *"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "npm-run-all": "^4.1.2",
+    "webpack": "^3.10.0",
+    "webpack-dev-server": "^2.10.1"
+  },
+  "dependencies": {
+    "ejs": "^2.5.7"
+  }
+}
