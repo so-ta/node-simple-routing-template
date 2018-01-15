@@ -1,8 +1,6 @@
-# API parse template engine
+# node simple routing template
 ルーティングから必要に応じてAPIを叩いて、  
 Viewレンダリングまでするテンプレートエンジン＋α  
-  
-## 存在する機能
   
 ## ルーティング
 ### コントローラのルーティング例
