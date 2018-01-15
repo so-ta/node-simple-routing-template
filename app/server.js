@@ -4,6 +4,7 @@ var fs = require('fs');
 var zlib = require('zlib');
 var ejs = require('ejs');
 var stream = require('stream');
+var requestPromise = require('request-promise');
 
 function getType(_url) {
 	var types = {
@@ -43,6 +44,7 @@ http.createServer(function (req, res) {
 		}
 	};
 
+	/* ルーティング */
 	var i;
 	var routeString = "";
 	var routes = reqUrl.split("/");
@@ -91,6 +93,7 @@ http.createServer(function (req, res) {
 			}
 		}
 	};
+	/* 使用するアクションの探索 */
 	var route = routeString.split(".");
 	for(i = 0; i < route.length; i++) {
 		resources = resources[route[i]];
@@ -104,31 +107,49 @@ http.createServer(function (req, res) {
 
 	var template = resources["template"];
 
-	var message = "メッセージ！";
-	var contentTemplate = fs.readFileSync('app/views/'+template, 'utf-8');
-	var contentHtml = ejs.render(contentTemplate, {message: message});
+	var apiRequest = {
+		uri: 'https://qiita.com/so-ta/items/7f1b29b7d2098b5fd188.json',
+		transform2xxOnly: true,
+		transform: function (body) {
+			return JSON.parse(body);
+		}
+	};
 
-	var headTemplate = fs.readFileSync('app/views/layouts/head.ejs', 'utf-8');
-	var headHtml = ejs.render(headTemplate, {title:"タイトル"});
+	requestPromise(apiRequest)
+		.then(function (json) {
+			/* render template */
+			var contentTemplate = fs.readFileSync('app/views/'+template, 'utf-8');
+			var contentHtml = ejs.render(contentTemplate, json);
 
-	var layoutTemplate = fs.readFileSync('app/views/layouts/layout.ejs', 'utf-8');
-	var resultHtml = ejs.render(layoutTemplate, {content:contentHtml,head:headHtml});
+			var headTemplate = fs.readFileSync('app/views/layouts/head.ejs', 'utf-8');
+			var headHtml = ejs.render(headTemplate, {title:"タイトル"});
 
-	var resultStream = new stream.Readable;
-	resultStream._read = function noop() {};
-	resultStream.push(resultHtml);
-	resultStream.push(null);
+			var layoutTemplate = fs.readFileSync('app/views/layouts/layout.ejs', 'utf-8');
+			var resultHtml = ejs.render(layoutTemplate, {content:contentHtml,head:headHtml});
 
-	res.setHeader('content-type','text/html; charset=utf-8');
+			var resultStream = new stream.Readable;
+			resultStream._read = function noop() {};
+			resultStream.push(resultHtml);
+			resultStream.push(null);
 
-	var acceptEncoding = req.headers['accept-encoding'] || "";
-	if (acceptEncoding.match(/\bdeflate\b/)) {
-		res.setHeader('content-encoding', 'deflate');
-		resultStream.pipe(zlib.createDeflate()).pipe(res);
-	} else if (acceptEncoding.match(/\bgzip\b/)) {
-		res.setHeader('content-encoding', 'gzip');
-		resultStream.pipe(zlib.createGzip()).pipe(res);
-	}else{
-		resultStream.pipe(res);
-	}
+			res.setHeader('content-type','text/html; charset=utf-8');
+
+			var acceptEncoding = req.headers['accept-encoding'] || "";
+			if (acceptEncoding.match(/\bdeflate\b/)) {
+				res.setHeader('content-encoding', 'deflate');
+				resultStream.pipe(zlib.createDeflate()).pipe(res);
+			} else if (acceptEncoding.match(/\bgzip\b/)) {
+				res.setHeader('content-encoding', 'gzip');
+				resultStream.pipe(zlib.createGzip()).pipe(res);
+			}else{
+				resultStream.pipe(res);
+			}
+		})
+		.catch(function (err) {
+			res.writeHead(500, {
+				"Content-Type": "text/plain"
+			});
+			res.write("["+err.statusCode+"] API Request Error");
+			res.end();
+		});
 }).listen(1337, '127.0.0.1'); // 127.0.0.1の1337番ポートで待機
