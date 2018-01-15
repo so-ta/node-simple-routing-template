@@ -4,7 +4,8 @@
 'use strict';
 
 var path = require('path'),
-	ExtractTextPlugin = require('extract-text-webpack-plugin');
+	ExtractTextPlugin = require('extract-text-webpack-plugin'),
+	CopyWebpackPlugin = require('copy-webpack-plugin');
 
 
 module.exports = [{
@@ -16,13 +17,13 @@ module.exports = [{
 		path: __dirname + '/public',
 		filename: "./scripts/bundle.js"
 	}
-},{
+}, {
 	entry: {
 		'style': path.join(__dirname, 'src', 'styles', 'index.scss')
 	},
 	output: {
-		path: path.join(__dirname, 'public', 'styles'),
-		filename: '[name].css'
+		path: path.join(__dirname, 'public'),
+		filename: 'styles/[name].css'
 	},
 	devtool: 'source-map',
 	module: {
@@ -53,6 +54,10 @@ module.exports = [{
 		]
 	},
 	plugins: [
-		new ExtractTextPlugin('[name].css')
+		new ExtractTextPlugin('styles/[name].css'),
+		new CopyWebpackPlugin([{
+			from: 'src/images',
+			to: 'images'
+		}])
 	]
 }];
