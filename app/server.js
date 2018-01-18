@@ -37,6 +37,7 @@ function render(req, res, template, json) {
     var resultStream = new stream.Readable;
     resultStream._read = function noop() {
     };
+
     resultStream.push(resultHtml);
     resultStream.push(null);
 
@@ -154,7 +155,7 @@ http.createServer(function (req, res) {
                 "template": "accounts/index.ejs"
             },
             "Login": {
-                "api": "accounts/login",
+                "api": "https://qiita.com/api/v2/access_tokens",
                 "template": "accounts/login.ejs"
             },
             "Detail": {
@@ -188,9 +189,55 @@ http.createServer(function (req, res) {
         return
     }
 
+    /***** POST Request *****/
+
+    if (req.method === 'POST') {
+        var dataString = "";
+
+        //リクエストからdataを読み込む
+        req.on('readable', function () {
+            var string = req.read();
+            if (string != null) {
+                dataString += string;
+            }
+        });
+
+        req.on('end', function () {
+            var apiRequest = {
+                method: "POST",
+                uri: generateApiRequestWithParam(paramDictionary, resources["api"]),
+                transform2xxOnly: true,
+                transform: function (body) {
+                    return JSON.parse(body);
+                },
+                body: JSON.parse(dataString),
+                json: true,
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36'
+                }
+            };
+
+            requestPromise(apiRequest)
+                .then(function (json) {
+                    render(req, res, template, json);
+                })
+                .catch(function (err) {
+                    console.log(err);
+                    res.writeHead(500, {
+                        "Content-Type": "text/plain"
+                    });
+                    res.write("[" + err.statusCode + "] API Request Error");
+                    res.end();
+                });
+        });
+        return
+    }
+
+    /***** GET Request *****/
+
     var apiRequest = {
+        method: "GET",
         uri: generateApiRequestWithParam(paramDictionary, resources["api"]),
-        // uri: resources["api"],
         transform2xxOnly: true,
         transform: function (body) {
             return JSON.parse(body);
@@ -203,7 +250,6 @@ http.createServer(function (req, res) {
     requestPromise(apiRequest)
         .then(function (json) {
             render(req, res, template, json);
-
         })
         .catch(function (err) {
             console.log(err);
