@@ -57,7 +57,7 @@ function render(req, res, template, json) {
 function generateApiRequestWithParam(paramDictionary, apiResource) {
     for (key in paramDictionary) {
         var param = paramDictionary[key];
-        apiResource = apiResource.replace("[" + key + "]", param);
+        apiResource = apiResource.replace("{" + key + "}", param);
     }
     return apiResource;
 }
@@ -158,7 +158,7 @@ http.createServer(function (req, res) {
                 "template": "accounts/login.ejs"
             },
             "Detail": {
-                "api": "https://qiita.com/so-ta/items/[id].json",
+                "api": "https://qiita.com/so-ta/items/{id}.json",
                 "template": "accounts/index.ejs"
             }
         },
@@ -190,7 +190,6 @@ http.createServer(function (req, res) {
 
     var apiRequest = {
         uri: generateApiRequestWithParam(paramDictionary, resources["api"]),
-        // uri: resources["api"],
         transform2xxOnly: true,
         transform: function (body) {
             return JSON.parse(body);
