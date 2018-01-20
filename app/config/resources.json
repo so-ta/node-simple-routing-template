@@ -1,0 +1,27 @@
+{
+  "App": {
+    "Index": {
+      "template": "app/index.ejs"
+    }
+  },
+  "Accounts": {
+    "Index": {
+      "api": "https://qiita.com/so-ta/items/7f1b29b7d2098b5fd188.json",
+      "template": "accounts/index.ejs"
+    },
+    "Login": {
+      "api": "https://qiita.com/api/v2/access_tokens",
+      "template": "accounts/login.ejs"
+    },
+    "Detail": {
+      "api": "https://qiita.com/so-ta/items/[id].json",
+      "template": "accounts/index.ejs"
+    }
+  },
+  "System": {
+    "404": {
+      "statusCode": 404,
+      "template": "errors/404.ejs"
+    }
+  }
+}
