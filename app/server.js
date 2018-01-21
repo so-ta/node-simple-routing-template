@@ -68,7 +68,7 @@ function renderError(res, err) {
 }
 
 /* request */
-function generateRequest(method, pathDictionary, apiResource, dataString, parsedCookie) {
+function generateRequest(method, pathDictionary, apiResource, dataString, reqCookie) {
   var request = {
     method: method,
     timeout: 30 * 1000,
@@ -91,6 +91,12 @@ function generateRequest(method, pathDictionary, apiResource, dataString, parsed
     request.json = true;
   }
 
+  /* cookie */
+  var parsedCookie = {};
+  if (typeof(reqCookie) !== "undefined") {
+    parsedCookie = cookie.parse(reqCookie);
+  }
+
   /* header */
   var headers = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36'
@@ -102,6 +108,7 @@ function generateRequest(method, pathDictionary, apiResource, dataString, parsed
       headers[cookieHeader[cookieKey]] = parsedCookie[cookieKey];
     }
   }
+  headers["cookie"] = reqCookie;
   request.headers = headers;
 
   return request;
@@ -236,10 +243,7 @@ http.createServer(function (req, res) {
     resources["api"] = resources["api"] + "?" + pathAndParamString[1];
   }
 
-  var parsedCookie = {};
-  if (typeof(req["headers"]["cookie"]) !== "undefined") {
-    parsedCookie = cookie.parse(req.headers.cookie);
-  }
+  var reqCookie = req.headers.cookie;
 
   /***** POST Request *****/
   if (req.method === 'POST') {
@@ -253,14 +257,14 @@ http.createServer(function (req, res) {
     });
 
     req.on('end', function () {
-      var apiRequest = generateRequest(req.method, pathDictionary, resources["api"], dataString, parsedCookie);
+      var apiRequest = generateRequest(req.method, pathDictionary, resources["api"], dataString, reqCookie);
       request(req, res, apiRequest, template);
     });
     return
   }
 
   /***** GET Request *****/
-  var apiRequest = generateRequest(req.method, pathDictionary, resources["api"], null, parsedCookie);
+  var apiRequest = generateRequest(req.method, pathDictionary, resources["api"], null, reqCookie);
   request(req, res, apiRequest, template);
 
 }).listen(1337, '127.0.0.1'); // 127.0.0.1の1337番ポートで待機
