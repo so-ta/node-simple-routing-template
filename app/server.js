@@ -6,6 +6,7 @@ var ejs = require('ejs');
 var stream = require('stream');
 var requestPromise = require('request-promise');
 var cookie = require('cookie');
+var moment = require('moment');
 
 function getType(_url) {
   var types = {
@@ -199,6 +200,7 @@ function generateRouteAndPathDictionary(pathString) {
 // HTTPサーバーのイベントハンドラを定義
 http.createServer(function (req, res) {
   var reqUrl = decodeURI(req.url);
+  console.log( moment().format("YYYY-MM-DD HH:mm:ss") + " :: "+reqUrl);
 
   /* public以下のリソースに存在しているものの場合は、そのまま返す */
   var filename = "public" + reqUrl;
