@@ -71,9 +71,10 @@ function renderError(res, err) {
 function generateRequest(method, pathDictionary, apiResource, dataString, parsedCookie) {
   var request = {
     method: method,
+    timeout: 30 * 1000,
     transform2xxOnly: true,
-    transform: function (body) {
-      return JSON.parse(body);
+    transform: function(body, response, resolveWithFullResponse) {
+      return {'headers': response.headers, 'body': body};
     }
   };
 
@@ -108,8 +109,13 @@ function generateRequest(method, pathDictionary, apiResource, dataString, parsed
 
 function request(req, res, apiRequest, template) {
   requestPromise(apiRequest)
-    .then(function (json) {
-      render(req, res, template, json);
+    .then(function (apiResponse) {
+      if ( "set-cookie" in apiResponse.headers ) {
+        res.setHeader('set-cookie', apiResponse.headers["set-cookie"]);
+      }
+
+      var body = JSON.parse(apiResponse.body);
+      render(req, res, template, body);
     })
     .catch(function (err) {
       renderError(res, err);
