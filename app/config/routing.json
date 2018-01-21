@@ -1,0 +1,9 @@
+{
+  "#": "App.Index",
+  "accounts": {
+    "#": "Accounts.Index",
+    "login": "Accounts.Login",
+    "search": "Accounts.Search",
+    ":id": "Accounts.Detail"
+  }
+}
