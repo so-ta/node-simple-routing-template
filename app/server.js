@@ -74,7 +74,7 @@ function generateRequest(method, pathDictionary, apiResource, dataString, parsed
     request.uri = apiResource;
 
     /* body */
-    if (dataString != null) {
+    if (dataString !== null) {
         request.body = JSON.parse(dataString);
         request.json = true;
     }
@@ -235,7 +235,7 @@ http.createServer(function (req, res) {
 
         req.on('readable', function () {
             var string = req.read();
-            if (string != null) {
+            if (string !== null) {
                 dataString += string;
             }
         });
