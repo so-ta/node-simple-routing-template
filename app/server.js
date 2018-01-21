@@ -80,7 +80,7 @@ function generateRequest(method, pathDictionary, apiResource, dataString, parsed
   /* uri */
   for (var pathKey in pathDictionary) {
     var param = pathDictionary[pathKey];
-    apiResource = apiResource.replace("[" + pathKey + "]", param);
+    apiResource = apiResource.replace("{" + pathKey + "}", param);
   }
   request.uri = apiResource;
 

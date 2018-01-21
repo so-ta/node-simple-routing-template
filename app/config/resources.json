@@ -14,7 +14,7 @@
       "template": "accounts/login.ejs"
     },
     "Detail": {
-      "api": "https://qiita.com/so-ta/items/[id].json",
+      "api": "https://qiita.com/so-ta/items/{id}.json",
       "template": "accounts/index.ejs"
     }
   },
