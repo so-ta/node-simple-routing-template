@@ -37,9 +37,7 @@ function render(req, res, template, json) {
     var resultHtml = ejs.render(layoutTemplate, {content: contentHtml, head: headHtml});
 
     var resultStream = new stream.Readable;
-    resultStream._read = function noop() {
-    };
-
+    resultStream._read = function noop() {};
     resultStream.push(resultHtml);
     resultStream.push(null);
 
