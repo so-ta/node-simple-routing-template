@@ -7,6 +7,7 @@ var stream = require('stream');
 var requestPromise = require('request-promise');
 var cookie = require('cookie');
 var moment = require('moment');
+var environment = require('dotenv').config().parsed;
 
 function getType(_url) {
   var types = {
@@ -199,6 +200,7 @@ function generateRouteAndPathDictionary(pathString) {
 
 // HTTPサーバーのイベントハンドラを定義
 http.createServer(function (req, res) {
+
   var reqUrl = decodeURI(req.url);
   console.log( moment().format("YYYY-MM-DD HH:mm:ss") + " :: "+reqUrl);
 
